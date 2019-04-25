@@ -29,19 +29,19 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	if len(b.Username) == 0 || len(b.Password) == 0 {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Username))
+	if len(b.Email) == 0 || len(b.Password) == 0 {
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Email))
 		return
 	}
 
 	u := &model.User{}
-	if err := m.GetUserByName(b.Username, u); err != nil {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Username))
+	if err := m.GetUserByEmail(b.Email, u); err != nil {
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Email))
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(b.Password)); err != nil {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Username))
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Email))
 		return
 	}
 
@@ -57,13 +57,13 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	if len(b.Username) == 0 || len(b.Password) == 0 {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Username))
+	if len(b.Name) == 0 || len(b.Email) == 0 || len(b.Password) == 0 {
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Email))
 		return
 	}
 
-	if m.ExistsUser(b.Username) {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("User [%s] already exists.", b.Username))
+	if m.ExistsUser(b.Email) {
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("User [%s] already exists.", b.Email))
 		return
 	}
 
@@ -74,7 +74,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	u := model.NewUser(b.Username, string(h))
+	u := model.NewUser(b.Name, b.Email, string(h))
 	if err := m.CreateUser(u); err != nil {
 		glog.Errorf("Unable to create user. %s", err)
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -90,15 +90,16 @@ func IssueToken(c *gin.Context, u *model.User) {
 	t := jwt.New(jwt.SigningMethodRS512)
 	t.Claims = &model.Claims{
 		StandardClaims: &jwt.StandardClaims{
-			Id:        u.Username,
+			Id:        u.Email,
 			IssuedAt:  time.Now().Unix(),
 			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 		},
 		User: &model.User{
-			Token:    u.Token,
-			Pricing:  u.Pricing,
-			Created:  u.Created,
-			Username: u.Username,
+			Name:    u.Name,
+			Email:   u.Email,
+			Token:   u.Token,
+			Pricing: u.Pricing,
+			Created: u.Created,
 		},
 	}
 

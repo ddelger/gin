@@ -57,7 +57,7 @@ func Authorization() gin.HandlerFunc {
 		}
 
 		u := &model.User{}
-		if err := m.GetUserByName(t.Claims.(*model.Claims).Id, u); err != nil {
+		if err := m.GetUserByEmail(t.Claims.(*model.Claims).User.Email, u); err != nil {
 			c.AbortWithError(http.StatusUnauthorized, err)
 			return
 		}

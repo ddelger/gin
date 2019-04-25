@@ -12,21 +12,23 @@ const (
 
 type User struct {
 	Id       int64  `bson:"_id" json:"id"`
+	Name     string `json:"name"`
 	Token    string `json:"token"`
-	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password,omitempty"`
 	Pricing  int64  `json:"pricing"`
 	Created  int64  `json:"created"`
 }
 
 func (u *User) String() string {
-	return u.Username
+	return u.Name
 }
 
-func NewUser(username, password string) *User {
+func NewUser(name, email, password string) *User {
 	return &User{
 		Token:    bson.NewObjectId().Hex(),
-		Username: username,
+		Name:     name,
+		Email:    email,
 		Password: password,
 		Pricing:  PricingPlanDefault,
 		Created:  time.Now().Unix(),

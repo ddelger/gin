@@ -10,7 +10,7 @@ type Manager interface {
 
 type UserManager interface {
 	GetUserById(int64, *model.User) error
-	GetUserByName(string, *model.User) error
+	GetUserByEmail(string, *model.User) error
 	GetUserByToken(string, *model.User) error
 
 	ExistsUser(string) bool
