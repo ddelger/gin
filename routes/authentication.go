@@ -30,18 +30,18 @@ func Login(c *gin.Context) {
 	}
 
 	if len(b.Email) == 0 || len(b.Password) == 0 {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Email))
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid email [%s] or password.", b.Email))
 		return
 	}
 
 	u := &model.User{}
 	if err := m.GetUserByEmail(b.Email, u); err != nil {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Email))
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid email [%s] or password.", b.Email))
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(b.Password)); err != nil {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Email))
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid email [%s] or password.", b.Email))
 		return
 	}
 
@@ -58,12 +58,12 @@ func Register(c *gin.Context) {
 	}
 
 	if len(b.Name) == 0 || len(b.Email) == 0 || len(b.Password) == 0 {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid username [%s] or password.", b.Email))
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("Invalid email [%s] or password.", b.Email))
 		return
 	}
 
 	if m.ExistsUser(b.Email) {
-		AppendResponseError(c, http.StatusOK, fmt.Errorf("User [%s] already exists.", b.Email))
+		AppendResponseError(c, http.StatusOK, fmt.Errorf("Email [%s] already exists.", b.Email))
 		return
 	}
 
